@@ -42,3 +42,27 @@ touch -r 参考文件 目标文件    # 用参考文件的时间戳更新目标�
 要点：
 - `touch` 只创建普通空文件，不能创建目录（建目录要用 `mkdir`）。
 - 常见用途：快速新建代码/配置文件，或让 `make` 等构建工具认为文件已更新。
+
+### 4. caffeinate —— 让 Mac 保持不休眠
+
+`caffeinate` 是 macOS 自带的命令（`/usr/bin/caffeinate`），通过给系统加“防睡眠断言”来阻止休眠。不指定任何参数时，默认阻止**空闲睡眠**（`-i`）。
+
+```bash
+caffeinate                   # 一直阻止空闲睡眠，直到 Ctrl+C
+caffeinate -d                # 连屏幕一起保持常亮（不黑屏）
+caffeinate -s                # 阻止系统睡眠（仅接电源时有效，合盖仍会睡）
+caffeinate -i                # 只阻止空闲睡眠，屏幕可正常熄灭
+caffeinate -u -t 5           # 声明用户活动，默认 5 秒
+caffeinate -t 3600           # 保持 1 小时（3600 秒）后自动释放
+caffeinate -w 1234           # 等 PID 1234 的进程退出后再释放
+caffeinate -i python train.py # 挂着跑命令，命令结束断言自动失效
+```
+
+要点：
+- 常用组合是 `caffeinate -d -i -t 3600`：屏幕常亮 + 不休眠 + 1 小时后自动解除。
+- `-s` 只在**接电源**时有效，拔掉电源或合上盖子照样会睡。
+- 参数可以合并写，例如 `caffeinate -dis`。
+- 结束时按 `Ctrl+C`；用 `-t` 则到点自动释放。
+- 查看当前有哪些防睡眠断言：`pmset -g assertions`。
+
+补充：`-w` 后面跟的是 **进程 PID**，可用 `pgrep -f train.py` 查到；`-w` 与直接跟命令两种写法二选一，不能同时用。
